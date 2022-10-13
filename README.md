@@ -9,5 +9,5 @@ You should install Node and download this project
 Open your termainal and run 
 
 ```bash
-npm start       //To run the server in port 1000
+npm start       //To run the server on port 1000
 ```
