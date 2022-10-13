@@ -1,14 +1,44 @@
 const user =require('../Schema/userSchema')
-
-const findAll=async(req,res)=>
-{
-    try {
-        let users = await user.find({}).populate('Books')
-        res.json(users);    
-    } catch (error) {
-        console.log(`this is the ${error}`);
-    }    
+const jwt =require('jsonwebtoken')
+const handleError=(err)=>{
+    console.log(err.message,err.code)
+    let errors={email:'',password:''}
+    if(err.code===11000)
+    {
+        errors.email='That email is already exist'
+        return errors
+    }
+    if(err.message.includes('user validation failed'))
+    {
+        Object.values(err.errors).forEach(({properties})=>{
+            errors[properties.path]=properties.message
+        })
+    }
+    if(err.message==='incorrect password')
+    {
+        errors.password='That password incorrect'
+    }
+    if(err.message==='incorrect email')
+    {
+        errors.password='That email is not exist'
+    }
+    return errors
 }
+const createToken=(id)=>{
+    return jwt.sign({id},'Secret salt',{
+        expiresIn:3*24*60*60
+    })
+}
+//Before uptade the project
+// const findAll=async(req,res)=>
+// {
+//     try {
+//         let users = await user.find({}).populate('Books')
+//         res.json(users);    
+//     } catch (error) {
+//         console.log(`this is the ${error}`);
+//     }    
+// }
 const deleteUser =async(req,res)=>{
     try {
         let users =await user.findOne({_id:req.params.id}).populate('Books')
@@ -29,21 +59,44 @@ const updateUser =async (req,res)=>{
         console.log(`This a error ${error}`)
     }
 }
-const insert =async(req,res)=>{
+const signup =async(req,res)=>{
+    const {email ,password,name,age,Books}=req.body
+    console.log(1)
     try {
-        let users =new user(req.body)  
-        await users.save()
-        res.json(users)
+        const users=await user.create({email,password,name,age,Books})
+        console.log('2')
+        const token=createToken(users._id)    
+        res.cookie('jwt',token,{httpOnly:true,maxAge:24*60*60*3*1000})
+        // let users =new user(req.body)  
+        // await users.save()
+        res.status(200).json({users:users._id})
     } catch (error) {
         console.log(`This a error ${error}`)
     }
 }
-const findUser=async(req,res)=>{
+// Before uptade the project
+// const findUser=async(req,res)=>{
+//     try {
+//         let users =await user.findOne({_id:req.params.id}).populate('Books')
+//         res.json(users)
+//     } catch (error) {
+//         console.log(`This a error ${error}`)
+//     }
+// }
+const login=async(req,res)=>{
+    const {email,password}=req.body
     try {
-        let users =await user.findOne({_id:req.params.id}).populate('Books')
-        res.json(users)
-    } catch (error) {
-        console.log(`This a error ${error}`)
+        const users=await user.login(email,password)
+        const token=createToken(users._id)
+        res.cookie('jwt',token,{httpOnly:true,maxAge:3*24*60*60*1000})
+        res.status(200).json({users:users._id})
+    } catch (err) {
+        const error=handleError(err);
+        res.status(400).send(error);
     }
 }
-module.exports={findAll,deleteUser,updateUser,insert,findUser};
+const logout=(req,res)=>{
+    res.cookie('jwt','',{maxAge:1})
+    res.send('Done')
+}
+module.exports={logout,login,deleteUser,updateUser,signup};

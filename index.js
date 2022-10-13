@@ -1,17 +1,23 @@
 const express= require('express');
-const {json}= require('express');
+const mongoose=require('mongoose')
+const cookieParser=require('cookie-parser')
+const {requireAuth,checkUser}=require('./src/middleware/aurhmiddleware')
+const badyparser=require('body-parser');
 const bookRoute=require('./src/routes/bookroute')
 const userRoute =require('./src/routes/userroute')
+
 const logger =require('morgan')
 
 const server = express();
 
 const port=process.env.PORT ||1000;
 server.use(
-    json(),
-    logger("dev")
+    express.json(),
+    logger("dev"),
+    badyparser()
 )
-
+server.use(cookieParser())
+server.get('*',checkUser);
 //To test server
 server.get('/test',(req,res)=>{
     res.send(`Holle from your second home`);
@@ -20,6 +26,14 @@ server.get('/test',(req,res)=>{
 server.use('/book',bookRoute);
 server.use('/user',userRoute);
 
-server.listen(port,()=>{
-    console.log(`Eshta3'al ya negm el nogom`);
-})
+let connection=async()=>{
+    try {
+        await mongoose.connect("mongodb+srv://Mostafa_N:test123@auth.ubi9wmj.mongodb.net/?retryWrites=true&w=majority")
+        server.listen(port,()=>{
+            console.log('starting ...')
+        })
+    } catch (error) {
+        console.log(`This is a ${error}`);
+    }
+}
+connection();
