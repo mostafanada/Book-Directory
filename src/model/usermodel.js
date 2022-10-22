@@ -29,7 +29,7 @@ const createToken=(id)=>{
         expiresIn:3*24*60*60
     })
 }
-//Before uptade the project
+//Before update the project
 // const findAll=async(req,res)=>
 // {
 //     try {
@@ -41,7 +41,7 @@ const createToken=(id)=>{
 // }
 const deleteUser =async(req,res)=>{
     try {
-        let users =await user.findOne({_id:req.params.id}).populate('Books')
+        let users =await user.findOne({_id:req.params.id})
         let reslute = await users.remove();
         res.json(reslute);
         
@@ -51,7 +51,7 @@ const deleteUser =async(req,res)=>{
 }
 const updateUser =async (req,res)=>{
     try {
-        let users =await user.findOne({_id:req.params.id}).populate('Books')
+        let users =await user.findOne({_id:req.params.id})
         users.set(req.body)
         users =await users.save()
         res.json(users);
@@ -60,15 +60,11 @@ const updateUser =async (req,res)=>{
     }
 }
 const signup =async(req,res)=>{
-    const {email ,password,name,age,Books}=req.body
-    console.log(1)
+    const {email ,password}=req.body
     try {
-        const users=await user.create({email,password,name,age,Books})
-        console.log('2')
+        const users=await user.create({email,password})
         const token=createToken(users._id)    
         res.cookie('jwt',token,{httpOnly:true,maxAge:24*60*60*3*1000})
-        // let users =new user(req.body)  
-        // await users.save()
         res.status(200).json({users:users._id})
     } catch (error) {
         console.log(`This a error ${error}`)

@@ -15,18 +15,7 @@ const userScema = new Schema({
     type: String,
     required: [true, 'Please enter an password'],
     minlength: [6, 'The password is less than 6'],
-  },
-  name: {
-    type: String,
-    require: true,
-  },
-  age: Number,
-  Books: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'books',
-    },
-  ],
+  }
 });
 userScema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt();

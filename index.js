@@ -5,6 +5,7 @@ const {requireAuth,checkUser}=require('./src/middleware/aurhmiddleware')
 const badyparser=require('body-parser');
 const bookRoute=require('./src/routes/bookroute')
 const userRoute =require('./src/routes/userroute')
+const authorRoute =require('./src/routes/authorroute')
 
 const logger =require('morgan')
 
@@ -25,6 +26,7 @@ server.get('/test',(req,res)=>{
 //To test bookRouter
 server.use('/book',bookRoute);
 server.use('/user',userRoute);
+server.use('/author',authorRoute);
 
 let connection=async()=>{
     try {

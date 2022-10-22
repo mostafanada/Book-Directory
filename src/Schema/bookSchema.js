@@ -9,7 +9,7 @@ const bookSchema = new mongoose.Schema({
   author: {
     type: Schema.Types.ObjectId,
     require: true,
-    ref: 'users',
+    ref: 'authors',
   },
   publichYear: {
     type: Date,
